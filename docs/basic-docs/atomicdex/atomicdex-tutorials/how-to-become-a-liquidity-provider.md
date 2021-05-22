@@ -42,8 +42,10 @@ curl https://sh.rustup.rs -sSf | sh
 When asked to select an installation type, select the following.
 
 ```
-1) Proceed with installation (default)
+2) Customize installation
 ```
+
+Choose default host triple and toolchain, then select minimal profile.
 
 <collapse-text hidden title="Sample Output">
 
@@ -78,8 +80,19 @@ Current installation options:
 1) Proceed with installation (default)
 2) Customize installation
 3) Cancel installation
+>2
 
-Press Enter
+I'm going to ask you the value of each of these installation options.
+You may simply press the Enter key to leave unchanged.
+
+Default host triple?
+
+
+Default toolchain? (stable/beta/nightly/none)
+
+
+Profile (which tools and data to install)? (minimal/default/complete)
+minimal
 
 info: syncing channel updates for 'stable-x86_64-unknown-linux-gnu'
 info: latest update on 2019-07-04, rust version 1.36.0 (a53f9df32 2019-07-03)
@@ -121,30 +134,44 @@ source $HOME/.cargo/env
 ##### Command
 
 ```bash
-rustup install nightly-2019-10-06
+rustup install nightly-2020-10-25
 ```
 
 <collapse-text hidden title="Sample Output">
 
 ```
-$ rustup install nightly-2019-10-06
-info: syncing channel updates for 'nightly-2019-10-06-x86_64-unknown-linux-gnu'
-info: latest update on 2019-10-06, rust version 1.40.0-nightly (787005079 2019-10-04)
-info: downloading component 'rustc'
- 65.7 MiB /  65.7 MiB (100 %)  10.6 MiB/s ETA:   0 s
-info: downloading component 'rust-std'
-173.8 MiB / 173.8 MiB (100 %)  10.9 MiB/s ETA:   0 s
+$ rustup install nightly-2020-10-25  
+info: syncing channel updates for 'nightly-2020-10-25-x86_64-unknown-linux-gnu'
+696.1 KiB / 696.1 KiB (100 %) 567.6 KiB/s in  2s ETA:  0s
+info: latest update on 2020-10-25, rust version 1.49.0-nightly (ffa2e7ae8 2020-10-24)
 info: downloading component 'cargo'
-  4.7 MiB /   4.7 MiB (100 %)   1.7 MiB/s ETA:   0 s
+  5.3 MiB /   5.3 MiB (100 %) 426.6 KiB/s in  3s ETA:  0s
+info: downloading component 'clippy'
+  2.4 MiB /   2.4 MiB (100 %) 527.6 KiB/s in  2s ETA:  0s
 info: downloading component 'rust-docs'
- 11.7 MiB /  11.7 MiB (100 %)   1.8 MiB/s ETA:   0 s
-info: installing component 'rustc'
-info: installing component 'rust-std'
+ 13.6 MiB /  13.6 MiB (100 %)   4.3 MiB/s in  3s ETA:  0s
+info: downloading component 'rust-std'
+ 22.3 MiB /  22.3 MiB (100 %)   7.1 MiB/s in  4s ETA:  0s
+info: downloading component 'rustc'
+ 55.1 MiB /  55.1 MiB (100 %)  10.7 MiB/s in  7s ETA:  0s    
+info: downloading component 'rustfmt'
+  3.6 MiB /   3.6 MiB (100 %) 289.6 KiB/s in  2s ETA:  0s
 info: installing component 'cargo'
+info: Defaulting to 500.0 MiB unpack ram
+  5.3 MiB /   5.3 MiB (100 %)   4.4 MiB/s in  1s ETA:  0s
+info: installing component 'clippy'
 info: installing component 'rust-docs'
+ 13.6 MiB /  13.6 MiB (100 %)   3.8 MiB/s in  3s ETA:  0s
+info: installing component 'rust-std'
+ 22.3 MiB /  22.3 MiB (100 %)   4.0 MiB/s in  5s ETA:  0s
+info: installing component 'rustc'
+ 55.1 MiB /  55.1 MiB (100 %)   4.6 MiB/s in 12s ETA:  0s
+info: installing component 'rustfmt'
 
-  nightly-2019-10-06-x86_64-unknown-linux-gnu installed - rustc 1.40.0-nightly (787005079 2019-10-04)
+  nightly-2020-10-25-x86_64-unknown-linux-gnu installed - rustc 1.49.0-nightly (ffa2e7ae8 2020-10-24)
 
+info: checking for self-updates
+info: downloading self-update
 
 ```
 
@@ -153,23 +180,22 @@ info: installing component 'rust-docs'
 ##### Command
 
 ```bash
-rustup default nightly-2019-10-06
+rustup default nightly-2020-10-25
 ```
 
 <collapse-text hidden title="Sample Output">
 
 ```
-$ rustup default nightly-2019-10-06
-info: using existing install for 'nightly-2019-10-06-x86_64-unknown-linux-gnu'
-info: default toolchain set to 'nightly-2019-10-06-x86_64-unknown-linux-gnu'
+$ rustup default nightly-2020-10-25
+info: using existing install for 'nightly-2020-10-25-x86_64-unknown-linux-gnu'
+info: default toolchain set to 'nightly-2020-10-25-x86_64-unknown-linux-gnu'
 
-  nightly-2019-10-06-x86_64-unknown-linux-gnu unchanged - rustc 1.40.0-nightly (787005079 2019-10-04)
-
+  nightly-2020-10-25-x86_64-unknown-linux-gnu unchanged - rustc 1.49.0-nightly (ffa2e7ae8 2020-10-24)
 ```
 
 </collapse-text>
 
-##### Command
+##### Command (Optional, skip this step if it fails)
 
 ```bash
 rustup component add rustfmt-preview
@@ -191,13 +217,13 @@ info: installing component 'rustfmt'
 #### Step 1: Download source code
 
 ```bash
-cd ~ ; git clone https://github.com/KomodoPlatform/atomicDEX-API --branch mm2 --single-branch && cd atomicDEX-API
+cd ~ ; git clone https://github.com/KomodoPlatform/atomicDEX-API --branch mm2.1 --single-branch && cd atomicDEX-API
 ```
 
 <collapse-text hidden title="Sample Output">
 
 ```
-$cd ~ ; git clone https://github.com/KomodoPlatform/atomicDEX-API --branch mm2 --single-branch && cd atomicDEX-API
+$cd ~ ; git clone https://github.com/KomodoPlatform/atomicDEX-API --branch mm2.1 --single-branch && cd atomicDEX-API
 Cloning into 'atomicDEX-API'...
 remote: Enumerating objects: 34, done.
 remote: Counting objects: 100% (34/34), done.
@@ -232,14 +258,14 @@ cargo build --features native -vv
 ##### Command
 
 ```bash
-cd ~/atomicDEX-API/target/debug ; wget https://raw.githubusercontent.com/jl777/coins/master/coins
+cd ~/atomicDEX-API/target/debug ; wget https://raw.githubusercontent.com/KomodoPlatform/coins/master/coins
 ```
 
 <collapse-text hidden title="Sample Output">
 
 ```
-$ cd ~/atomicDEX-API/target/debug; wget https://raw.githubusercontent.com/jl777/coins/master/coins
---2019-07-20 05:27:50--  https://raw.githubusercontent.com/jl777/coins/master/coins
+$ cd ~/atomicDEX-API/target/debug; wget https://raw.githubusercontent.com/KomodoPlatform/coins/master/coins
+--2019-07-20 05:27:50--  https://raw.githubusercontent.com/KomodoPlatform/coins/master/coins
 Resolving raw.githubusercontent.com (raw.githubusercontent.com)... 151.101.8.133
 Connecting to raw.githubusercontent.com (raw.githubusercontent.com)|151.101.8.133|:443... connected.
 HTTP request sent, awaiting response...
@@ -330,7 +356,7 @@ Failure to properly manage your passphrase can (and likely will) result in lost 
 
 ```bash
 #!/bin/bash
-stdbuf -oL nohup ./mm2 "{\"gui\":\"MM2GUI\",\"netid\":9999, \"userhome\":\"/${HOME#"/"}\", \"passphrase\":\"alpha sleep calm pumpkin brief game summer item monitor mother hobby filter clever desert boat prosper office entry major sauce praise neglect brand dove\", \"rpc_password\":\"GlHjhvYlev8fh8xZgSBI\"}" &
+stdbuf -oL nohup ./mm2 "{\"gui\":\"MM2GUI\",\"netid\":7777, \"userhome\":\"/${HOME#"/"}\", \"passphrase\":\"alpha sleep calm pumpkin brief game summer item monitor mother hobby filter clever desert boat prosper office entry major sauce praise neglect brand dove\", \"rpc_password\":\"GlHjhvYlev8fh8xZgSBI\"}" &
 ```
 
 </collapse-text>
@@ -510,14 +536,29 @@ See this [linked document](../../../basic-docs/atomicdex/atomicdex-api.html#orde
    {
      "coin": "KMD",
      "address": "RT9MpMyucqXiX8bZLimXBnrrn2ofmdGNKd",
-     "price": 0.013215470000000002,
-     "numutxos": 0,
-     "avevolume": 0,
-     "maxvolume": 485.99773485000003,
-     "depth": 0,
+     "price": "0.013215470000000002",
+     "price_rat": [
+       [1, [1536963325, 1773750]],
+       [1, [0, 134217728]]
+     ],
+     "price_fraction": {
+       "numer": "7618199778243325",
+       "denom": "576460752303423488"
+     },
+     "maxvolume": "485.99773485000003",
+     "max_volume_rat": [
+       [1, [1550366371, 995323]],
+       [1, [0, 2048]]
+     ],
+     "max_volume_fraction": {
+       "numer": "4274881284322979",
+       "denom": "8796093022208"
+     },
      "pubkey": "1bb83b58ec130e28e0a6d5d2acf2eb01b0d3f1670e021d47d31db8a858219da8",
      "age": 10,
-     "zcredits": 0
+     "zcredits": 0,
+     "uuid": "ac058b00-24e0-40e1-82f0-0ec4131450c5",
+     "is_mine": false
    }
  ],
  "base": "KMD",
@@ -526,17 +567,33 @@ See this [linked document](../../../basic-docs/atomicdex/atomicdex-api.html#orde
    {
      "coin": "LTC",
      "address": "Ld6814QT6fyChvvX3gmhNHbRDyiMBvPr9s",
-     "price": 0.011956849349654498,
-     "numutxos": 0,
-     "avevolume": 0,
-     "maxvolume": 1.03403044,
+     "price": "0.011956849349654498",
+     "price_rat": [
+       [1, [1238828453, 401205]],
+       [1, [0, 33554432]]
+     ],
+     "price_fraction": {
+       "numer": "1723163592820133",
+       "denom": "144115188075855872"
+     },
+     "maxvolume": "1.03403044",
+     "max_volume_rat": [
+       [1, [3226923691, 542129]],
+       [1, [0, 524288]]
+     ],
+     "max_volume_fraction": {
+       "numer": "2328429552136875",
+       "denom": "2251799813685248"
+     },
      "depth": 0,
      "pubkey": "1bb83b58ec130e28e0a6d5d2acf2eb01b0d3f1670e021d47d31db8a858219da8",
      "age": 11,
-     "zcredits": 0
+     "zcredits": 0,
+     "uuid": "80019ae0-5a42-40db-bc49-18975987e45b",
+     "is_mine": false
    }
  ],
- "netid": 9999,
+ "netid": 7777,
  "numasks": 1,
  "numbids": 1,
  "rel": "LTC",
@@ -563,14 +620,29 @@ Display the LTC/KMD Orderbook.
    {
      "coin": "LTC",
      "address": "Ld6814QT6fyChvvX3gmhNHbRDyiMBvPr9s",
-     "price": 83.19879514,
-     "numutxos": 0,
-     "avevolume": 0,
-     "maxvolume": 1.03403044,
-     "depth": 0,
+     "price": "83.19879514",
+     "price_rat": [
+       [1, [255867351, 1363129]],
+       [1, [0, 16384]]
+     ],
+     "price_fraction": {
+       "numer": "5854594731096535",
+       "denom": "70368744177664"
+     },
+     "maxvolume": "1.03403044",
+     "max_volume_rat": [
+       [1, [3226923691, 542129]],
+       [1, [0, 524288]]
+     ],
+     "max_volume_fraction": {
+       "numer": "2328429552136875",
+       "denom": "2251799813685248"
+     },
      "pubkey": "1bb83b58ec130e28e0a6d5d2acf2eb01b0d3f1670e021d47d31db8a858219da8",
      "age": 9,
-     "zcredits": 0
+     "zcredits": 0,
+     "uuid": "80019ae0-5a42-40db-bc49-18975987e45b",
+     "is_mine": false
    }
  ],
  "base": "LTC",
@@ -579,17 +651,32 @@ Display the LTC/KMD Orderbook.
    {
      "coin": "KMD",
      "address": "RT9MpMyucqXiX8bZLimXBnrrn2ofmdGNKd",
-     "price": 75.27507393894138,
-     "numutxos": 0,
-     "avevolume": 0,
-     "maxvolume": 485.99773485000003,
-     "depth": 0,
+     "price": "75.27507393894138",
+     "price_rat": [
+       [1, [3018734531, 308326]],
+       [1, [0, 4096]]
+     ],
+     "price_fraction": {
+       "numer": "1324253105241027",
+       "denom": "17592186044416"
+     },
+     "maxvolume": "485.99773485000003",
+     "max_volume_rat": [
+       [1, [1550366371, 995323]],
+       [1, [0, 2048]]
+     ],
+     "max_volume_fraction": {
+       "numer": "4274881284322979",
+       "denom": "8796093022208"
+     },
      "pubkey": "1bb83b58ec130e28e0a6d5d2acf2eb01b0d3f1670e021d47d31db8a858219da8",
      "age": 10,
-     "zcredits": 0
+     "zcredits": 0,
+     "uuid": "ac058b00-24e0-40e1-82f0-0ec4131450c5",
+     "is_mine": false
    }
  ],
- "netid": 9999,
+ "netid": 7777,
  "numasks": 1,
  "numbids": 1,
  "rel": "KMD",
@@ -703,6 +790,7 @@ Execute the following command to withdraw `0.97` KMD to the address `RUFf4de7gZE
   "block_height": 0,
   "timestamp": 1563798788,
   "fee_details": {
+    "type": "Utxo",
     "amount": 1e-5
   },
   "coin": "KMD",

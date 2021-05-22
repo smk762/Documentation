@@ -52,6 +52,14 @@ Install [Rust](https://www.rust-lang.org/tools/install):
 curl https://sh.rustup.rs -sSf | sh
 ```
 
+Choose `2)` to customize the installation, select `default host triple` and `default toolchain`, and choose the `minimal` profile.
+
+<div>
+
+<img src="/get-started-atomicdex/rustup-minimal.png">
+
+</div>
+
 #### cmake Version 3.12 or Higher
 
 Download the cmake software here: [download link](https://cmake.org/download/)
@@ -75,7 +83,7 @@ sudo apt-get install build-essential
 Install the following additional dependencies using the terminal.
 
 ```bash
-sudo apt-get install -y build-essential git llvm-3.9-dev libclang-3.9-dev clang-3.9 libssl-dev pkg-config
+sudo apt-get install -y git llvm-3.9-dev libclang-3.9-dev clang-3.9 libssl-dev pkg-config
 ```
 
 #### Install Additional Rust Components
@@ -83,12 +91,14 @@ sudo apt-get install -y build-essential git llvm-3.9-dev libclang-3.9-dev clang-
 Install additional Rust components:
 
 ```bash
-rustup install nightly-2019-10-06
+rustup install nightly-2020-10-25
 ```
 
 ```bash
-rustup default nightly-2019-10-06
+rustup default nightly-2020-10-25
 ```
+
+(Optional) Skip this step if it fails.
 
 ```bash
 rustup component add rustfmt-preview
@@ -100,7 +110,7 @@ rustup component add rustfmt-preview
 
 ##### Linux:
 
-```
+```bash
 sudo apt-get install jq
 ```
 
@@ -110,11 +120,11 @@ Download the appropriate file from [this link.](https://stedolan.github.io/jq/do
 
 In your terminal, make the file executable by changing into the directory where the file downloaded and executing:
 
-```
+```bash
 chmod +x jq
 ```
 
-Then execute the file.
+Execute the file.
 
 ##### Windows:
 
@@ -126,19 +136,34 @@ Clone the MM2 repository:
 
 ```bash
 cd ~
-git clone https://github.com/KomodoPlatform/atomicDEX-API --branch mm2 --single-branch && cd atomicDEX-API
+git clone https://github.com/KomodoPlatform/atomicDEX-API --branch mm2.1 --single-branch && cd atomicDEX-API
 ```
 
-Compile the source code:
+Compile the source code.
 
 ```bash
 cargo build --features native -vv
 ```
 
-If everything installs successfully you will see something similar:
+#### MacOS
+
+If the above command results in an error, use the following command instead.
+
+```bash
+LIBRARY_PATH=/usr/local/opt/openssl/lib cargo build --features native -vv
+```
+
+Alternatively, create a permanent link called `libcrypto` to `/usr/local/lib`.
+
+```bash
+ln -s /usr/local/opt/openssl/lib/libcrypto.a /usr/local/lib
+```
+
+If everything installed successfully, a response that is similar to the following should appear.
 
 ```
 “Finished dev [optimized + debuginfo] target(s) in 3m 33s”
 ```
 
 The MM2 executable is now built and available here: `~/atomicDEX-API/target/debug/mm2`
+

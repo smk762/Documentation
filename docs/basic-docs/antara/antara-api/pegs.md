@@ -2,7 +2,7 @@
 
 ::: tip
 
-The Pegs Antara Module is in the final stages of production. Please reach out to the Komodo team for consultation before attempting to use this module in a production environment.
+The Pegs Antara Module is in the final stages of production. The specifics of the implementation are also subject to change. Please reach out to the Komodo team for consultation before attempting to use this module in a production environment.
 
 :::
 
@@ -32,8 +32,7 @@ The Pegs Antara Module requires interactivity with several additional Antara Mod
   - These tokens can be spent and traded as actual cryptocurrency; the user who returns them to the Gateways Module at a later time will unlock and receive the associated external funds
 - The [Oracles](./oracles.html) Module
   - This module uses an [oraclefeed](https://github.com/KomodoPlatform/komodo/blob/master/src/cc/dapps/oraclefeed.c) app to provide information to the Gateways Module about tokens a user deposits
-- The Prices Module
-  - (Documentation for this module is coming soon)
+- The [Prices](./prices.html) Module
   - The Prices Module obtains data from a range of external sources (defined by a developer) and makes this information available on the Pegs Smart Chain
   - This module utilizes functionality from the Oracles Module to transfer the obtained data from the real world into the digital world
   - The Prices Module is responsible for tracking the value of an external asset (including assets external to the Komodo ecosystem) for on-chain price mimicry
@@ -69,13 +68,21 @@ The user sends their tokens (such as tokenized `KMD`) to the Pegs Module, which 
 
 Once the funds are locked, the Pegs Module creates native coins on the Pegs-related Smart Chain and issues these new coins to the user. The exchange rate between the user's deposited tokens and the native Smart Chain coins is determined by the data-driven rate of exchange.
 
-The user may only withdraw up to `80%` of the financial value of the locked external cryptocurrency funds. The other `20%` is held as a collateralized loan, available to assist in maintaining the stablecoin's value, if necessary.
+The user may only withdraw up to `80%` of the current financial value of the locked external cryptocurrency funds. The other `20%` is held as a collateralized loan, available to assist in maintaining the stablecoin's value, if necessary.
 
 In this manner, the native Smart Chain coins become the intended stablecoin.
 
 ##### Managing Price Volatility
 
 As time progresses, the difference in price between the user's tokenized cryptocurrency and the stablecoin will change. Consider for example that the user is using `KMD` as the deposited cryptocurrency to access a stablecoin that mimics the `USD` fiat currency. The stablecoin in this example is named `USDK`.
+
+:::tip Note
+
+The rules of liquidation found below are applicable only when the "global-debt ratio" — the ratio of all user deposits and debts at current prices on the Smart Chain — is higher than `60%`. 
+
+If the global-debt ratio is lower than `60%`, no accounts are in danger of liquidation, regardless of their individual debt ratio.
+
+:::
 
 ###### Value of Backing Cryptocurrency Increases
 
@@ -99,21 +106,21 @@ The `USDK` coins are burned, thus preserving the ratio of withdrawn `USDK` coins
 
 Should the debt of a user's account surpass the `90%` threshold, the account enters the red zone.
 
-Here, a third-party user can gain an immediate `5%` rate of return by sending `USDK` coins to the Pegs Module to liquidate the indebted user's account. The third-party user must deposit `USDK` to cover the user's whole debt, valued at 90% of the indebted account's `KMD` tokens, according to current prices. 
+Here, a third-party user can gain an immediate `5%` rate of return by sending `USDK` coins to the Pegs Module to liquidate the indebted user's account. The third-party user must deposit `USDK` to cover the user's whole debt, valued at 90% of the indebted account's `KMD` tokens, according to current prices.
 
-In return, the liquidating user receives 95% of the `KMD` tokens in the indebted user's account. These `KMD` tokens can be redeemed on the `KMD` chain and held as profit.
+In return, the liquidating user receives `95%` of the `KMD` tokens in the indebted user's account. These `KMD` tokens can be redeemed on the `KMD` chain and, if sold at the current price, provide a `5%` profit.
 
-In return, the third-party user receives `15%` of the user's deposited `KMD` tokens, netting the third-party user an immediate `5%` rate of return.
+The `USDK` coins sent by the liquidating user are burned.
 
-The `USDK` coins sent by the third-party user are burned.
+The remaining indebted user's `KMD` tokens are donated to the Pegs Antara Module, where they continue to support the maintenance of a healthy backing coin vs stablecoin ratio (`KMD:USDK`). In case the account debt was exactly 90% at the moment of liquidation, the remaining will be `5%`.
 
-The remaining `5%` of the indebted user's `KMD` tokens are donated to the Pegs Antara Module, where they continue to support the maintenance of a healthy stablecoin and `KMD:USDK` ratio balance.
+The liquidated user still holds their USDK coins and can exchange them for KMD tokens from another account that is in the yellow zone.
 
 ###### Preventing Account Liquidation
 
 To prevent account liquiditation, when the user who created the account detects that their account is approaching the `90%` debt-ratio threshold, they have two options available.
 
-The depositor can return an amount of `USDK` coins that satisfies `100%` of the outstanding balance of their collateralized loan at current prices. 
+The depositor can return an amount of `USDK` coins that satisfies `100%` of the outstanding balance of their collateralized loan at current prices.
 
 Alternatively, the depositor can deposit more tokenized `KMD` to their account at current prices until the user's debt/loan ratio is safely below the `80%` threshold.
 
@@ -297,20 +304,20 @@ Optionally, if a pubkey is supplied, this method also returns the corresponding 
 
 ### Response
 
-| Name                    | Type     | Description                                                                                                                                                 |
-| ----------------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| "result"                | (string) | whether the command executed successfully                                                                                                                   |
-| "PegsCCAddress"         | (string) | taking the contract's EVAL code as a modifier, this is the public address that corresponds to the contract's privkey                                        |
-| "PegsCCBalance"         | (number) | the amount of funds in the `PegsCCAddress`                                                                                                                  |
-| "PegsNormalAddress"     | (string) | the unmodified public address generated from the contract's privkey                                                                                         |
-| "PegsNormalBalance"     | (number) | the amount of funds in the `PegsNormalAddress`          |
-| "PegsCCTokensAddress"   | (string) | the public address where Tokens are locked in the Pegs module                                                                                               |
-| "PubkeyCCaddress(Pegs)" | (string) | taking the module's EVAL code as a modifier, this is the Antara address from the pubkey supplied as an argument                                             |
-| "PubkeyCCbalance(Pegs)" | (number) | the amount of funds in the `PubkeyCCaddress(Pegs)`               |
-| "myCCAddress(Pegs)"     | (string) | taking the module's EVAL code as a modifier, this is the Antara address from the pubkey of the user                                                         |
-| "myCCbalance(Pegs)"     | (number) | the amount of funds in the `myCCAddress(Pegs)`  |
-| "myaddress"             | (string) | the public address of the pubkey used to launch the chain                                                                                                   |
-| "mybalance"             | (number) | the amount of funds in the `myaddress`                           |
+| Name                    | Type     | Description                                                                                                          |
+| ----------------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
+| "result"                | (string) | whether the command executed successfully                                                                            |
+| "PegsCCAddress"         | (string) | taking the contract's EVAL code as a modifier, this is the public address that corresponds to the contract's privkey |
+| "PegsCCBalance"         | (number) | the amount of funds in the `PegsCCAddress`                                                                           |
+| "PegsNormalAddress"     | (string) | the unmodified public address generated from the contract's privkey                                                  |
+| "PegsNormalBalance"     | (number) | the amount of funds in the `PegsNormalAddress`                                                                       |
+| "PegsCCTokensAddress"   | (string) | the public address where Tokens are locked in the Pegs module                                                        |
+| "PubkeyCCaddress(Pegs)" | (string) | taking the module's EVAL code as a modifier, this is the Antara address from the pubkey supplied as an argument      |
+| "PubkeyCCbalance(Pegs)" | (number) | the amount of funds in the `PubkeyCCaddress(Pegs)`                                                                   |
+| "myCCAddress(Pegs)"     | (string) | taking the module's EVAL code as a modifier, this is the Antara address from the pubkey of the user                  |
+| "myCCbalance(Pegs)"     | (number) | the amount of funds in the `myCCAddress(Pegs)`                                                                       |
+| "myaddress"             | (string) | the public address of the pubkey used to launch the chain                                                            |
+| "mybalance"             | (number) | the amount of funds in the `myaddress`                                                                               |
 
 #### :pushpin: Examples
 
@@ -374,7 +381,7 @@ The `pegscreate` method creates an on-chain Peg, associating the value of the Sm
 
 The creation of this peg requires a tokenized backing cryptocurrency. Any cryptocurrency that is based on the Bitcoin protocol can fulfill this role, including `BTC` and `KMD`. There can be more than one such supporting cryptocurrency on any stablecoin Smart Chain.
 
-The `amount` parameter is the number of coins to be added to the Pegs Module from the available balance in the wallet of the user who is creating the peg. Often, this is the same user who created the Smart Chain, and therefore this balance can be extracted from the Smart Chain's premined coins. The coins will be used for the transaction fees that the Pegs Module performs through automated behavior.  The coins are also used for markers, which are transactions that send a very small amount of funds to a global address on the Pegs Module for record keeping purposes.
+The `amount` parameter is the number of coins to be added to the Pegs Module from the available balance in the wallet of the user who is creating the peg. Often, this is the same user who created the Smart Chain, and therefore this balance can be extracted from the Smart Chain's premined coins. The coins will be used for the transaction fees that the Pegs Module performs through automated behavior. The coins are also used for markers, which are transactions that send a very small amount of funds to a global address on the Pegs Module for record keeping purposes.
 
 The `N` parameter is the number of gateways to associate with the Pegs module. Each cryptocurrency asset that backs the Peg's stablecoin needs a unique gateway.
 
@@ -449,7 +456,7 @@ The above string is the `pegstxid` that represents the Peg.
 
 The `pegsexchange` method exchanges native coins for deposited tokens. This method is intended for users that do not have a Pegs account associated with the pubkey used to launch their daemon.
 
-Users that have an account may use the [<b>pegsliquidate</b>](../../../basic-docs/antara/antara-api/pegs.html#pegsliquidate) method.
+Users that have an account may use the [<b>pegsreedem</b>](../../../basic-docs/antara/antara-api/pegs.html#pegsredeem) method to exchange coins for tokens.
 
 To supply the user that executes the method with tokens, this method sends the user's coins to pay the debt of another user whose account is in the "yellow zone" (a debt ratio between `80%` and `90%` based on current prices). This improves the debt ratio of the indebted user, thus forestalling liquidation of the indebted user's account.
 
@@ -604,16 +611,16 @@ The `pegsinfo` method returns the current information about the indicated `pegst
 
 ### Response
 
-| Name            | Type         | Description                                                                                                                                                                                                                                                                                                                                                                                                            |
-| --------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| "result"        | (string)     | whether the command executed successfully                                                                                                                                                                                                                                                                                                                                                                              |
-| "name"          | (string)     | the name of the method                                                                                                                                                                                                                                                                                                                                                                                                 |
-| "info"          | (json array) | the current information about the given Peg                                                                                                                                                                                                                                                                                                                                                                            |
-| "token"         | (string)     | the name of the token                                                                                                                                                                                                                                                                                                                                                                                                  |
-| "total deposit" | (amount)     | the total number of tokens deposited                                                                                                                                                                                                                                                                                                                                                                                   |
-| "total debt"    | (amount)     | the total number of satoshis of the native coin withdrawn                                                                                                                                                                                                                                                                                                                                                              |
-| "total ratio"   | (string)     | the total debt ratio for the above token based on the current price                                                                                                                                                                                                                                                                                                                                                    |
-| "global ratio"  | (string)     | the global debt ratio for all tokens backing the Peg, based on the current prices  |
+| Name            | Type         | Description                                                                       |
+| --------------- | ------------ | --------------------------------------------------------------------------------- |
+| "result"        | (string)     | whether the command executed successfully                                         |
+| "name"          | (string)     | the name of the method                                                            |
+| "info"          | (json array) | the current information about the given Peg                                       |
+| "token"         | (string)     | the name of the token                                                             |
+| "total deposit" | (amount)     | the total number of tokens deposited                                              |
+| "total debt"    | (amount)     | the total number of satoshis of the native coin withdrawn                         |
+| "total ratio"   | (string)     | the total debt ratio for the above token based on the current price               |
+| "global ratio"  | (string)     | the global debt ratio for all tokens backing the Peg, based on the current prices |
 
 #### :pushpin: Examples
 

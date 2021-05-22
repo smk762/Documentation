@@ -1,78 +1,71 @@
 # Setup Komodo Notary Node
 
-## Note
+::: tip Disclaimer
+This guide is here to give guidance and a general understanding on building a Komodo Notary Node server. It is possible that some instructions could be deprecated by the time you read it. It describes how to build the two required notary node servers: **Mainnet** and **Third Party(3P)**.
+:::
 
-This guide is still in _BETA_ phase. It is here is to give you a good understanding on building your Komodo Notary Node servers. It is possible that some commands could be deprecated by the time you read it. It is intended to give guidance on how to build your two notary node servers from a fresh install.
+Note that, whenever the "Main Server" is referenced, it is referring to the server that is used to notarize Komodo and Smart Chains to Bitcoin. Whenever "3rd Party server" is referenced, it is referring to the server that is used to notarize any 3rd party coin to Komodo.
 
-For simplicity, whenever "Main Server" is referenced, it is referring to the server that is used to notarise Komodo & it's assetchains to Bitcoin. Whenever 3rd Party server is referenced, it is referencing the server used to notarise any 3rd party coin to Komodo.
+This guide will explain how to setup your Main Server, then go through the process of setting up the 3rd Party Server separately. After that there are instructions on how to create your Notary Node `pubkeys`, import them to your servers and then, create a basic start script for each server. Having a second server (or VM) is now a requirement for Komodo Notary Nodes. There are ways to have a single server and then creating separate virtual machines on it, instead of having two separate servers. This guide won't touch on how to do that.
 
-This guide will explain how to setup your Main Server, then go through how to setup the 3rd Party Server seperately. Below that describes how to create your NN pubkeys, import them and create a basic start script for each server. Having a second server (or VM) is now a requirement of Komodo Notary Nodes. There are methods of having a single server and creating seperate virtual machines, instead of having two seperate servers, but this guide won't touch on how to do that.
-
-If you have any problems, please join `#notarynode` on the [Komodo Discord](https://komodoplatform.com/discord)
+If you face problems, please join the `#notarynode` channel on the [Komodo Discord Server](https://komodoplatform.com/discord)
 
 ## NN Repo Quick Reference
 
-Below are the current list of repo's NN's are to use. It will be kept up-to-date as possible, but if you see something you're not expecting, jump on the discord and let us know.
+::: tip Note
+
+We recommend the Notary Node Operators to check the Table at [https://github.com/komodoplatform/dpow#dpow-asset-status](https://github.com/komodoplatform/dpow#dpow-asset-status) for latest information on the repositories and branches to run. If there is contradicting information in this document, treat the information at [https://github.com/komodoplatform/dpow#dpow-asset-status](https://github.com/komodoplatform/dpow#dpow-asset-status) as correct and inform the team through the [Komodo Discord Server](https://komodoplatform.com/discord). Using the **exact** repository and branch/tag recommended is very important for the security of the network.
+
+:::
 
 ### Both Servers
 
-**KMD:** https://github.com/jl777/komodo -b beta
-
-**Iguana Default (autosplit):** https://github.com/jl777/SuperNET -b beta_season3
-
-**Iguana other option (no autosplit, low RAM usage, no support):** https://github.com/jl777/SuperNET -b blackjok3r
+- **KMD:** [https://github.com/KomodoPlatform/komodo/tree/e159b4e7a40d3886519401c4074e957a1f9d42ba](https://github.com/KomodoPlatform/komodo/tree/e159b4e7a40d3886519401c4074e957a1f9d42ba) Tree: `e159b4e7a40d3886519401c4074e957a1f9d42ba`
+- **Iguana (no autosplit):** [https://github.com/KomodoPlatform/dPoW](https://github.com/KomodoPlatform/dPoW) Branch: `master`
 
 ### Main Server
 
-**BTC:** https://github.com/bitcoin/bitcoin -b 0.16
+- **BTC:** [https://github.com/bitcoin/bitcoin](https://github.com/bitcoin/bitcoin) Branch: `0.16`
 
-**HUSH:** https://github.com/MyHush/hush3 -b dev
+### 3rd Party Server
 
-### 3rd Party Server:
-
-**VRSC:** https://github.com/VerusCoin/VerusCoin -b master
-
-**EMC2:** https://github.com/emc2foundation/einsteinium.git -b master
-
-**GAME:** https://github.com/gamecredits-project/GameCredits.git -b master
-
-**GIN:** https://github.com/GIN-coin/gincoin-core.git -b master
-
-**CHIPS:**  https://github.com/jl777/chips3.git -b dev
+- **Powerblockcoin:** [https://github.com/pbcllc/powerblockcoin-core/tree/51f456afda4dea643a27341d3b5762769937675e](https://github.com/pbcllc/powerblockcoin-core/tree/51f456afda4dea643a27341d3b5762769937675e) Tree: `51f456afda4dea643a27341d3b5762769937675e`
+- **EMC2:** [https://github.com/emc2foundation/einsteinium.git](https://github.com/emc2foundation/einsteinium.git) Branch: `master` . Commit: `70d7dc2b94e0b275f026ae51fda2a23725929bfd`
+- **CHIPS:** [https://github.com/jl777/chips3.git](https://github.com/jl777/chips3.git) Branch: `master` . Commit: `31d59f9d8fa4a8e00dd474ef0561a5b174056d86`
+- **AYA:** [https://github.com/sillyghost/AYAv2.git](https://github.com/sillyghost/AYAv2.git) Branch: `master` . Commit: `fd94422aff2886919dc963d85c313df4dfb0d770`
+- **VRSC:** [https://github.com/VerusCoin/VerusCoin](https://github.com/VerusCoin/VerusCoin) Tag: `v0.7.0-4` . Commit: `ab82cc9aad27db997d8dd9d30ebd973a78c22abc`
+- **MCL:** [https://github.com/marmarachain/Marmara-v.1.0.git](https://github.com/marmarachain/Marmara-v.1.0.git) Branch: `master` Commit: `03dd78037067ebb27af8b33f6adcdbede3813007`
+- **GLEEC** [https://github.com/KomodoPlatform/GleecBTC-FullNode-Win-Mac-Linux/tree/b4ffcc9b4ed829cefb1afc27e1c81a7e5be4cffd](https://github.com/KomodoPlatform/GleecBTC-FullNode-Win-Mac-Linux/tree/b4ffcc9b4ed829cefb1afc27e1c81a7e5be4cffd) Tree: `b4ffcc9b4ed829cefb1afc27e1c81a7e5be4cffd`
 
 ## Requirements
 
 ### Hardware
 
 #### Main Server
-Komodo Notary Node currently only works on Linux. To setup Komodo Notary Node be sure you have a good solid server with the following minimum requirements:
 
-- CPU: A good CPU (Xeon/i7)
+Komodo Notary Node currently only works on Linux. To setup Komodo Notary Node be sure you have a solid server with the following minimum requirements:
 
-- RAM: 64GB
-
-- Disk: 500GB SSD
-
-- Bandwidth: 100Mbps
-
+- OS: Ubuntu 18.x or Debian 10.x is recommended.
+- CPU: A High-Performance CPU (e.g. Xeon, i7/i9, Ryzen, EPYC, etc.)
+- RAM: 64 GB or more
+- Disk: 1 TB SSD or greater
+- Bandwidth: 100 Mbps or higher
 - Location: The region where you were elected (refer to Komodo region documentation, but you should already know based on elections)
 
 #### 3rd Party Server
-At the moment the current minimum server specs are listed below, however, this may change as more 3rd party coins require notarising.
 
-- CPU: A good CPU (8 threads minimum)
+At the moment the current minimum server specs are listed below, however, this may change as more 3rd party coins require notarizing.
 
-- RAM: 16Gb
-
-- Disk: 256Gb SSD
-
-- Bandwidth: 100Mbps
-
+- OS: Ubuntu 18.x or Debian 10.x is recommended.
+- CPU: A High-Performance CPU (e.g. Xeon, i7/i9, Ryzen, EPYC, etc.)
+- RAM: 32 GB or more
+- Disk: 500 GB SSD or greater
+- Bandwidth: 100 Mbps or higher
 - Location: Within the same region as your main server (not required to be in the same datacenter)
 
 ### Operating System
 
-Debian/Ubuntu LTS x64 - minimal installation with Openssh server.
+**Recommended:** Debian/Ubuntu LTS x64 - minimal installation with Openssh server.
 
 ### Security
 
@@ -82,11 +75,11 @@ _Before doing anything further, please ensure that your server is secure._
 
 - Install [Fail2ban](https://www.digitalocean.com/community/tutorials/how-to-protect-ssh-with-fail2ban-on-ubuntu-14-04).
 
-- [Perform Initial Setup for creating new user, give `sudo` permission, change SSH port, disable `root` login, disable password authentication for login](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04)
+- [Perform Initial Setup for creating new user, give it `sudo` permission, change SSH port, disable `root` login, disable password authentication for login](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-16-04)
 
 - Please run processes as an unprivileged user and use `sudo` where necessary
 
-**Here is a repo with automated script to prepare your fresh Ubuntu server with initial setup https://github.com/webworker01/freshubuntu**
+**Here is a repo with automated scripts to prepare your fresh Ubuntu server with initial setup [https://github.com/webworker01/freshubuntu](https://github.com/webworker01/freshubuntu)**
 
 ## Initial Server Setup
 
@@ -95,8 +88,7 @@ The instructions below are required on both of your servers.
 ### Install Required Dependencies
 
 ```bash
-sudo apt-get update && sudo apt-get upgrade -y
-sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoconf libtool libncurses-dev unzip git python zlib1g-dev wget bsdmainutils automake libboost-all-dev libssl-dev libprotobuf-dev protobuf-compiler libgtest-dev libqt4-dev libqrencode-dev libdb++-dev ntp ntpdate software-properties-common libevent-dev curl libcurl4-gnutls-dev cmake clang libsodium-dev jq htop -y
+sudo apt-get install libevent-dev libboost-system-dev libboost-filesystem-dev libboost-chrono-dev libboost-program-options-dev libboost-test-dev libboost-thread-dev build-essential pkg-config libc6-dev m4 g++-multilib autoconf libtool ncurses-dev python-zmq zlib1g-dev wget curl bsdmainutils automake cmake clang libsodium-dev libcurl4-gnutls-dev libssl-dev git unzip python jq htop -y
 ```
 
 ### Install `nanomsg`
@@ -115,18 +107,22 @@ sudo ldconfig
 
 ## Install Komodo by compiling it from source
 
-### Clone the source, checkout `beta` branch and compile
+### Clone the source, checkout `master` branch and compile
 
 ```bash
 cd ~
-git clone https://github.com/jl777/komodo
+git clone https://github.com/KomodoPlatform/komodo
 cd komodo
-git checkout beta
+git checkout e159b4e
 ./zcutil/fetch-params.sh
 ./zcutil/build.sh -j$(nproc)
 ```
 
-`-j$(nproc)` uses all available processor threads while compiling. If you don't want to use all threads, you can use `-j8` which will use only 8 threads.
+::: tip Note
+
+`-j$(nproc)` uses all the available processor threads while compiling. If you don't want to use all threads, you may specify the number directly like so: `-j8` will use only 8 threads; Alternatively, you may like to use `-j$(expr $(nproc) - 1)`, which will use all the available processors except one.
+
+:::
 
 ### Symlink the compiled binaries
 
@@ -183,17 +179,14 @@ BTC WIF: L24bEAJSkFCdjoQNEcboWfJdsLGLmkBgfGb4TSHnbhEmU9jenaes
 KMD Address: RVNKRr2uxPMxJeDwFnTKjdtiLtcs7UzCZn
 KMD WIF: UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
 
-GAME Address: Gdw3mTUaLRAgK7A2iZ8K4suQVnx7VRJ9rf
-GAME WIF: Re6YxHzdQ61rmTuZFVbjmGu9Kqu8VeVJr4G1ihTPFsspAjGiErDL
-
 EMC2 Address: EdF2quz8nWrJDwTbbTTieFYUMGfPsVB5dv
 EMC2 WIF: T7trfubd9dBEWe3EnFYfj1r1pBueqqCaUUVKKEvLAfQvz3JFsNhs
 
-GIN Address: Gdw3mTUaLRAgK7A2iZ8K4suQVnx7VRJ9rf
-GIN WIF: WNejFTXR11LFx2L8wvEKEqvjHkL1D3Aa4CCBdEYQyBzbBKjPLHJQ
+AYA Address: AVjkMgFfmMZbpFvmTxCcxadnD6g1EdQue3
+AYA WIF: T6oxgc9ZYJA1Uvsm31Gb8Mg31hHgLWue7RuqQMjEHUWZEi5TdskL
 ```
 
-CHIPS & all Komodo assetchain including HUSH3 & VRSC uses the same address and WIF format as Komodo (KMD).
+CHIPS, all Komodo Smart Chains and Komodo source forks like VRSC use the same address and WIF format as Komodo (KMD).
 
 It is recommended that you write down the randomly generated seed (24 words) in a piece of paper and type directly into your server. Do not keep the seed saved in your local computer.
 
@@ -204,18 +197,19 @@ We will import these keys into our coin daemons and validate them later in this 
 ## Setup Iguana
 
 On both servers:
-### Clone the jl777/SuperNET -b beta_season3 source
+
+### Clone the repository and build
 
 ```bash
 cd ~
-git clone https://github.com/jl777/SuperNET/
-cd SuperNET/iguana
-git checkout beta_season3
+git clone https://github.com/KomodoPlatform/dPoW -b master
+cd dPoW/iguana
+./m_notary_build
 ```
 
 ### Create a `pubkey.txt` file
 
-You will need to create a `pubkey.txt` file inside `~/SuperNET/iguana` directory. This will be used to start the dPoW process in the `dpowassets` script later on. `pubkey.txt` file should contain only the pubkey of the appropriate server. The file should contain only the information in the example below. Change `02a854251adfee222bede8396fed0756985d4ea905f72611740867c7a4ad6488c1` with the appropriate pubkey for the server the file is on.
+You will need to create a `pubkey.txt` file inside `~/dPoW/iguana` directory. This file will be used to start the dPoW process in the `dpowassets` script later on. `pubkey.txt` file should contain only the pubkey of the appropriate server. The file should contain only the information in the example below. Change `02a854251adfee222bede8396fed0756985d4ea905f72611740867c7a4ad6488c1` to the appropriate pubkey for the server the file is on.
 
 ```bash
 pubkey=02a854251adfee222bede8396fed0756985d4ea905f72611740867c7a4ad6488c1
@@ -227,10 +221,10 @@ The main server iguana will use the port 7776.
 
 #### Create `wp_7776`
 
-Create `wp_7776` file inside the `~/SuperNET/iguana` dir with the same passphrase you used to generate your Main address/pubkey. The file should look as follows (replace `YOUR VERY SECURE PASSPHRASE` with your own):
+Create `wp_7776` file inside the `~/dPoW/iguana` directory with the same passphrase you used to generate your Main address/pubkey. The file should look as follows (replace `YOUR_VERY_SECURE_PASSPHRASE` with your own):
 
 ```bash
-curl --url "http://127.0.0.1:7776" --data "{\"method\":\"walletpassphrase\",\"params\":[\"YOUR VERY SECURE PASSPHRASE\", 9999999]}"
+curl --url "http://127.0.0.1:7776" --data "{\"method\":\"walletpassphrase\",\"params\":[\"YOUR_VERY_SECURE_PASSPHRASE\", 9999999]}"
 ```
 
 #### Make `wp_7776` file executable
@@ -245,10 +239,10 @@ The 3rd party server iguana will use the port 7779.
 
 #### Create `wp_7779`
 
-Create `wp_7779` file inside the `~/SuperNET/iguana` dir with the same passphrase you used to generate your 3rd Party address/pubkey. The file should look as follows (replace `YOUR VERY SECURE PASSPHRASE` with your own):
+Create `wp_7779` file inside the `~/dPoW/iguana` directory with the same passphrase you used to generate your 3rd Party address/pubkey. The file should look as follows (replace `YOUR_VERY_SECURE_PASSPHRASE` with your own):
 
 ```bash
-curl --url "http://127.0.0.1:7779" --data "{\"method\":\"walletpassphrase\",\"params\":[\"YOUR VERY SECURE PASSPHRASE\", 9999999]}"
+curl --url "http://127.0.0.1:7779" --data "{\"method\":\"walletpassphrase\",\"params\":[\"YOUR_VERY_SECURE_PASSPHRASE\", 9999999]}"
 ```
 
 #### Make `wp_7779` file executable
@@ -261,7 +255,7 @@ chmod 700 wp_7779
 
 ## Main Server Setup
 
-The instructions below are only required on your main server, which is the one that will be notarising Komodo & all assetchains and runtime forks to Bitcoin.
+The instructions below are only required on your main server, which is the one that will be notarizing Komodo, all the Smart Chains and runtime forks to Bitcoin.
 
 ### Bitcoin
 
@@ -269,14 +263,13 @@ The instructions below are only required on your main server, which is the one t
 
 ```bash
 cd ~
-git clone https://github.com/bitcoin/bitcoin
+git clone https://github.com/bitcoin/bitcoin -b 0.16
 cd bitcoin
-git checkout 0.16
 ```
 
 #### Step 2: Create a build script
 
-Name the script as `build.sh` inside the `~/bitcoin` dir for easy compiling and add the contents below to the script. The script will also create symlinks gor the binaries at `/usr/local/bin/` and for that, you will be asked to provide the `sudo` password.
+Name the script as `build.sh` inside the `~/bitcoin` dir for easy compiling and add the contents below to the script. The script will also create symlinks for the binaries at `/usr/local/bin/` and for that, you will be asked to provide the `sudo` password.
 
 ```bash
 #!/bin/bash
@@ -287,10 +280,25 @@ berkeleydb () {
     wget -N 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
     echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef db-4.8.30.NC.tar.gz' | sha256sum -c
     tar -xzvf db-4.8.30.NC.tar.gz
+    cat <<-EOL >atomic-builtin-test.cpp
+        #include <stdint.h>
+        #include "atomic.h"
+
+        int main() {
+        db_atomic_t *p; atomic_value_t oldval; atomic_value_t newval;
+        __atomic_compare_exchange(p, oldval, newval);
+        return 0;
+        }
+EOL
+    if g++ atomic-builtin-test.cpp -I./db-4.8.30.NC/dbinc -DHAVE_ATOMIC_SUPPORT -DHAVE_ATOMIC_X86_GCC_ASSEMBLY -o atomic-builtin-test 2>/dev/null; then
+        echo "No changes to bdb source are needed ..."
+        rm atomic-builtin-test 2>/dev/null
+    else
+        echo "Updating atomic.h file ..."
+        sed -i 's/__atomic_compare_exchange/__atomic_compare_exchange_db/g' db-4.8.30.NC/dbinc/atomic.h
+    fi
     cd db-4.8.30.NC/build_unix/
-
     ../dist/configure -enable-cxx -disable-shared -with-pic -prefix=$BITCOIN_PREFIX
-
     make install
     cd $BITCOIN_ROOT
 }
@@ -331,8 +339,8 @@ Insert the following contents inside the `bitcoin.conf` file and save it. (chang
 server=1
 daemon=1
 txindex=1
-rpcuser=bitcoinrpc
-rpcpassword=password
+rpcuser=bitcoinrpcChangeThisToSomethingSecure
+rpcpassword=passwordChangeThisToSomethingSecure
 bind=127.0.0.1
 rpcbind=127.0.0.1
 rpcallowip=127.0.0.1
@@ -344,38 +352,25 @@ Restrict access to the `bitcoin.conf` file
 chmod 600 ~/.bitcoin/bitcoin.conf
 ```
 
-### HUSH3
-
-#### Clone HUSH3 source and compile
-
-```bash
-cd ~
-git clone https://github.com/MyHush/hush3
-cd hush3
-git checkout dev
-./zcutil/build.sh -j$(nproc)
-```
-
 ### Start the daemons and sync all the chains
 
-For the first time sync, we will run all the coin daemons normally. Make sure you have successfully compiled all the daemons from the above section. We will create a `start` script later in this guide to start the chains with `-pubkey` option for notarisation.
+For the first time sync, we will run all the coin daemons normally. Make sure you have successfully compiled all the daemons from the above section. We will create a `start` script later in this guide to start the chains with `-pubkey` option for notarization.
 
 ### Start the coins
 
 ```bash
 komodod &
 bitcoind &
-~/hush3/src/hushd &
 ```
 
-### Start Komodo and all the assetchains
+### Start Komodo and all the Smart Chains
 
 ```bash
 cd ~/komodo/src
 ./assetchains.old
 ```
 
-Now wait for all the chains to finish syncing. This might take about 8-10 hours depending on your machine and internet connection. You can check check sync progress by using `tail -f` on the `debug.log` file in the respective coin data directories. Komodo assetchains have their own data directory inside the `~/.komodo` directory.
+Now wait for all the chains to finish syncing. This might take about 8-10 hours depending on your machine and internet connection. You can check check sync progress by using `tail -f` on the `debug.log` file in the respective coin data directories. Komodo Smart Chains have their own data directory inside the `~/.komodo` directory.
 
 Commands to tail `debug.log`
 
@@ -384,13 +379,11 @@ Commands to tail `debug.log`
 tail -f ~/.bitcoin/debug.log
 # KMD
 tail -f ~/.komodo/debug.log
-# HUSH3
-tail -f ~/.komodo/HUSH3/debug.log
 # SUPERNET
 tail -f ~/.komodo/SUPERNET/debug.log
 ```
 
-For any other Komodo assetchain, use the example of HUSH3 or SUPERNET and change the path with the coin name that you are looking for accordingly. You can now wait for all the coins to finish syncing. Just double check the block you've downloaded with an explorer to verify.
+For any other Komodo Smart Chain, use the example of SUPERNET and change the path with the coin name that you are looking for accordingly. You can now wait for all the coins to finish syncing. Just double check the blocks you've downloaded with an explorer to verify.
 
 ### Import your main private key
 
@@ -401,32 +394,31 @@ Feel free to import these as the daemons are syncing.
 ```bash
 komodo-cli importprivkey UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
 bitcoin-cli importprivkey WNejFTXR11LFx2L8wvEKEqvjHkL1D3Aa4CCBdEYQyBzbBKjPLHJQ
-komodo-cli -ac_name=HUSH3 importprivkey UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
 ```
 
-- For all other Komodo assetchains, use the following command to import privkey
+- For all other Komodo Smart Chains, use the following command to import privkey
 
 ```bash
 cd ~/komodo/src
 ./fiat-cli importprivkey UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
 ```
 
-This command will import keys into all assetchains that are using the main Komodo daemon. This may take some time and will display the coin name and address after each import. You can tail the coin specific `debug.log` files to check the progress.
+This command will import keys into all Smart Chains that are using the main Komodo daemon. This may take some time and will display the coin name and address after each import. You can tail the coin specific `debug.log` files to check the progress.
 
 ### Validate the addresses
 
-After all the addresses are imported, using the respective `<COIN>-cli`, validate all addresses and make sure the response has `ismine:true`. If you have `ismine:false`, your address hasn't imported correctly and dPoW will not work for that coin. Sample command for that is below.
+After all the addresses are imported, using the respective `<COIN>-cli`, validate all addresses and make sure the response has `ismine:true`. If you have `ismine:false`, your address wasn't imported correctly and dPoW will not work for that coin. Sample command for that is below.
 
 ```bash
 komodo-cli validateaddress RVNKRr2uxPMxJeDwFnTKjdtiLtcs7UzCZn
 ```
 
-#### Copy the `pubkey.txt` file that we created from the `~/SuperNET/iguana` dir
+#### Copy the `pubkey.txt` file that we created from the `~/dPoW/iguana` dir
 
 You will need to create a `pubkey.txt` file inside `~/komodo/src/`. This file will be used to start all of your daemons with the `-pubkey=` parameter in your `start` script that will be made later in this guide.
 
 ```bash
-cp ~/SuperNET/iguana/pubkey.txt ~/komodo/src/pubkey.txt
+cp ~/dPoW/iguana/pubkey.txt ~/komodo/src/pubkey.txt
 ```
 
 ### Stop All the Coin Daemons Safely
@@ -438,29 +430,122 @@ Never use `kill -9` to kill any Coin daemon if you don't like corrupt databases.
 ```bash
 komodo-cli stop
 bitcoin-cli stop
-komodo-cli -ac_name=HUSH3 stop
 ```
 
-For all other Komodo assetchains, use the following command to `stop` the daemons.
+For all other Komodo Smart Chains, use the following command to `stop` the daemons.
 
 ```bash
 cd ~/komodo/src
 ./fiat-cli stop
 ```
 
-### After all the chains' daemons were stopped gracefully, let's restrict access to all the Komodo Assetchain's `.conf` files inside `~/.komodo` dir
+### After all the chains' daemons were stopped gracefully, let's restrict access to all the Komodo Smart Chains' `.conf` files inside `~/.komodo` dir
 
 ```bash
 find ~/.komodo -type f -iname "*.conf" -exec chmod 600 {} \;
 ```
 
-To complete setting up your main server, go to the `Set 'ulimit' parameters on Ubuntu permanently` section.
+To complete setting up your main server, go to the [Set 'ulimit' parameters on Ubuntu permanently](#set-ulimit-parameters-on-ubuntu-permanently) section.
 
 ---
 
 ## 3rd Party Server Setup
 
-The instructions below are only required on your 3rd party server, which is the one that will be notarising 3rd party coins to Komodo.
+The instructions below are only required on your 3rd party server, which is the one that will be notarizing 3rd party coins to Komodo.
+
+### Aryacoin (AYA)
+
+#### Step 1: Clone AYA source
+
+```bash
+cd ~
+git clone https://github.com/sillyghost/AYAv2.git -b master
+cd AYAv2
+git checkout fd94422
+```
+
+#### Step 2: Create a build script
+
+Name the script as `build.sh` inside the `~/AYAv2` dir for easy compiling and add the contents below to the script. The script will also create symlinks for the binaries at `/usr/local/bin/` and for that, you will be asked to provide the `sudo` password.
+
+```bash
+#!/bin/bash
+# AYA build script for Ubuntu & Debian 9 v.3 (c) Decker (and webworker)
+berkeleydb () {
+    AYA_ROOT=$(pwd)
+    AYA_PREFIX="${AYA_ROOT}/db4"
+    mkdir -p $AYA_PREFIX
+    wget -N 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
+    echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef db-4.8.30.NC.tar.gz' | sha256sum -c
+    tar -xzvf db-4.8.30.NC.tar.gz
+    cat <<-EOL >atomic-builtin-test.cpp
+        #include <stdint.h>
+        #include "atomic.h"
+
+        int main() {
+        db_atomic_t *p; atomic_value_t oldval; atomic_value_t newval;
+        __atomic_compare_exchange(p, oldval, newval);
+        return 0;
+        }
+EOL
+    if g++ atomic-builtin-test.cpp -I./db-4.8.30.NC/dbinc -DHAVE_ATOMIC_SUPPORT -DHAVE_ATOMIC_X86_GCC_ASSEMBLY -o atomic-builtin-test 2>/dev/null; then
+        echo "No changes to bdb source are needed ..."
+        rm atomic-builtin-test 2>/dev/null
+    else
+        echo "Updating atomic.h file ..."
+        sed -i 's/__atomic_compare_exchange/__atomic_compare_exchange_db/g' db-4.8.30.NC/dbinc/atomic.h
+    fi
+    cd db-4.8.30.NC/build_unix/
+    ../dist/configure -enable-cxx -disable-shared -with-pic -prefix=$AYA_PREFIX
+    make install
+    cd $AYA_ROOT
+}
+buildAYA () {
+    git pull
+    ./autogen.sh
+    ./configure LDFLAGS="-L${AYA_PREFIX}/lib/" CPPFLAGS="-I${AYA_PREFIX}/include/" --with-gui=no --disable-tests --disable-bench --without-miniupnpc --enable-experimental-asm --enable-static --disable-shared --with-incompatible-bdb
+    make -j$(nproc)
+}
+berkeleydb
+buildAYA
+echo "Done building AYA!"
+sudo ln -sf /home/$USER/AYAv2/src/aryacoin-cli /usr/local/bin/aryacoin-cli
+sudo ln -sf /home/$USER/AYAv2/src/aryacoind /usr/local/bin/aryacoind
+```
+
+#### Step 3: Make the script executable and run it
+
+```bash
+chmod +x build.sh
+./build.sh
+```
+
+#### Step 4: Create AYA data dir, `aryacoin.conf` file and restrict access to it
+
+```bash
+cd ~
+mkdir .aryacoin
+nano ~/.aryacoin/aryacoin.conf
+```
+
+Insert the following contents inside the `aryacoin.conf` file and save it. (change the `rpcuser` and `rpcpassword` values)
+
+```bash
+server=1
+daemon=1
+txindex=1
+rpcuser=user
+rpcpassword=password
+bind=127.0.0.1
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.1
+```
+
+Restrict access to the `aryacoin.conf` file
+
+```bash
+chmod 600 ~/.aryacoin/aryacoin.conf
+```
 
 ### Chips
 
@@ -468,18 +553,81 @@ The instructions below are only required on your 3rd party server, which is the 
 
 ```bash
 cd ~
-git clone https://github.com/jl777/chips3
+git clone https://github.com/jl777/chips3 -b master
 cd chips3
-git checkout dev
+git checkout 31d59f9
+```
+
+#### Step 2: Build
+
+##### Ubuntu 18.04
+
+```bash
 ./build.sh
 ```
-#### Step 2: Symlink the compiled binaries
+
+##### Debian 10 and Ubuntu 20.04
+
+Replace the contents of the `build.sh` file with the following code
+
+```bash
+#!/bin/bash
+
+berkeleydb() {
+    CHIPS_ROOT=$(pwd)
+    CHIPS_PREFIX="${CHIPS_ROOT}/db4"
+    mkdir -p $CHIPS_PREFIX
+    wget -N 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
+    echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef db-4.8.30.NC.tar.gz' | sha256sum -c
+    tar -xzvf db-4.8.30.NC.tar.gz
+    cat <<-EOL >atomic-builtin-test.cpp
+        #include <stdint.h>
+        #include "atomic.h"
+
+        int main() {
+        db_atomic_t *p; atomic_value_t oldval; atomic_value_t newval;
+        __atomic_compare_exchange(p, oldval, newval);
+        return 0;
+        }
+EOL
+    if g++ atomic-builtin-test.cpp -I./db-4.8.30.NC/dbinc -DHAVE_ATOMIC_SUPPORT -DHAVE_ATOMIC_X86_GCC_ASSEMBLY -o atomic-builtin-test 2>/dev/null; then
+        echo "No changes to bdb source are needed ..."
+        rm atomic-builtin-test 2>/dev/null
+    else
+        echo "Updating atomic.h file ..."
+        sed -i 's/__atomic_compare_exchange/__atomic_compare_exchange_db/g' db-4.8.30.NC/dbinc/atomic.h
+    fi
+    cd db-4.8.30.NC/build_unix/
+    ../dist/configure -enable-cxx -disable-shared -with-pic -prefix=$CHIPS_PREFIX
+    make install
+    cd $CHIPS_ROOT
+}
+
+buildCHIPS() {
+    git pull
+    ./autogen.sh
+    ./configure LDFLAGS="-L${CHIPS_PREFIX}/lib/" CPPFLAGS="-I${CHIPS_PREFIX}/include/" --with-gui=no --disable-tests --disable-bench --without-miniupnpc --enable-experimental-asm --enable-static --disable-shared
+    make -j$(nproc)
+}
+berkeleydb
+buildCHIPS
+echo "Done building CHIPS!"
+```
+
+then, run the script
+
+```bash
+./build.sh
+```
+
+#### Step 3: Symlink the compiled binaries
+
 ```shell
 sudo ln -sf /home/$USER/chips3/src/chips-cli /usr/local/bin/chips-cli
 sudo ln -sf /home/$USER/chips3/src/chipsd /usr/local/bin/chipsd
 ```
 
-#### Step 3: Create CHIPS data dir, `chips.conf` file and restrict access to it
+#### Step 4: Create CHIPS data dir, `chips.conf` file and restrict access to it
 
 ```bash
 cd ~
@@ -512,121 +660,20 @@ Restrict access to the `chips.conf` file
 chmod 600 ~/.chips/chips.conf
 ```
 
-### GameCredits (GAME)
-
-#### Step 1: Clone GAME source
-
-```bash
-cd ~
-git clone https://github.com/gamecredits-project/GameCredits
-cd GameCredits
-git checkout master
-```
-
-#### Step 2: Create a build script
-
-Name the script as `build.sh` inside the `~/GameCredits` dir for easy compiling and add the contents below to the script. The script will also create symlinks gor the binaries at `/usr/local/bin/` and for that, you will be asked to provide the `sudo` password.
-
-```bash
-#!/bin/bash
-# GameCredits build script for Ubuntu & Debian 9 v.3 (c) Decker
-
-# Step 1: Build BDB 4.8
-GAMECREDITS_ROOT=$(pwd)
-GAMECREDITS_PREFIX="${GAMECREDITS_ROOT}/db4"
-mkdir -p $GAMECREDITS_PREFIX
-wget -N 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
-echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef db-4.8.30.NC.tar.gz' | sha256sum -c
-tar -xzvf db-4.8.30.NC.tar.gz
-cd db-4.8.30.NC/build_unix/
-
-../dist/configure -enable-cxx -disable-shared -with-pic -prefix=$GAMECREDITS_PREFIX
-
-make -j$(nproc)
-make install
-cd $GAMECREDITS_ROOT
-
-# Step 2: Build OpenSSL (libssl-dev) 1.0.x
-version=1.0.2o
-mkdir -p openssl_build
-wget -qO- http://www.openssl.org/source/openssl-$version.tar.gz | tar xzv
-cd openssl-$version
-export CFLAGS=-fPIC
-./config no-shared --prefix=$GAMECREDITS_ROOT/openssl_build
-make -j$(nproc)
-make install
-cd ..
-
-export PKG_CONFIG_PATH="$GAMECREDITS_ROOT/openssl_build/pkgconfig"
-export CXXFLAGS+=" -I$GAMECREDITS_ROOT/openssl_build/include/ -I${GAMECREDITS_PREFIX}/include/"
-export LDFLAGS+=" -L$GAMECREDITS_ROOT/openssl_build/lib -L${GAMECREDITS_PREFIX}/lib/ -static"
-export LIBS+="-ldl"
-
-# p.s. for Debian added -ldl in LDFLAGS it's enough, but on Ubuntu linker doesn't recognize it, so,
-# we moved -ldl to LIBS and added -static to LDFLAGS, because linker on Ubuntu doesn't understan that
-# it should link librypto.a statically.
-#
-# Or we can build OpenSSL 1.0.x as shared (instead of no-shared) and use:
-# export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/$USER/GameCredits/openssl_build/lib before
-# starting gamecreditsd.
-
-# Step 3: Build GameCredits daemon
-./autogen.sh
-./configure --with-gui=no --disable-tests --disable-bench --without-miniupnpc --enable-experimental-asm --enable-static --disable-shared
-make -j$(nproc)
-
-sudo ln -sf /home/$USER/GameCredits/src/gamecredits-cli /usr/local/bin/gamecredits-cli
-sudo ln -sf /home/$USER/GameCredits/src/gamecreditsd /usr/local/bin/gamecreditsd
-```
-
-#### Step 3: Make the script executable and run it
-
-```bash
-chmod +x build.sh
-./build.sh
-```
-
-#### Step 4: Create GAME data dir, `gamecredits.conf` file and restrict access to it
-
-```bash
-cd ~
-mkdir .gamecredits
-nano ~/.gamecredits/gamecredits.conf
-```
-
-Insert the following contents inside the `gamecredits.conf` file and save it. (change the `rpcuser` and `rpcpassword` values)
-
-```bash
-server=1
-daemon=1
-txindex=1
-rpcuser=user
-rpcpassword=password
-bind=127.0.0.1
-rpcbind=127.0.0.1
-rpcallowip=127.0.0.1
-```
-
-Restrict access to the `gamecredits.conf` file
-
-```bash
-chmod 600 ~/.gamecredits/gamecredits.conf
-```
-
 ### Einsteinium (EMC2)
 
 #### Step 1: Clone EMC2 source
 
 ```bash
 cd ~
-git clone https://github.com/emc2foundation/einsteinium
+git clone https://github.com/emc2foundation/einsteinium -b master
 cd einsteinium
-git checkout master
+git checkout 70d7dc2	
 ```
 
 #### Step 2: Create a build script
 
-Name the script as `build.sh` inside the `~/einsteinium` dir for easy compiling and add the contents below to the script. The script will also create symlinks gor the binaries at `/usr/local/bin/` and for that, you will be asked to provide the `sudo` password.
+Name the script as `build.sh` inside the `~/einsteinium` dir for easy compiling and add the contents below to the script. The script will also create symlinks for the binaries at `/usr/local/bin/` and for that, you will be asked to provide the `sudo` password.
 
 ```bash
 #!/bin/bash
@@ -637,10 +684,25 @@ berkeleydb () {
     wget -N 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
     echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef db-4.8.30.NC.tar.gz' | sha256sum -c
     tar -xzvf db-4.8.30.NC.tar.gz
+    cat <<-EOL >atomic-builtin-test.cpp
+        #include <stdint.h>
+        #include "atomic.h"
+
+        int main() {
+        db_atomic_t *p; atomic_value_t oldval; atomic_value_t newval;
+        __atomic_compare_exchange(p, oldval, newval);
+        return 0;
+        }
+EOL
+    if g++ atomic-builtin-test.cpp -I./db-4.8.30.NC/dbinc -DHAVE_ATOMIC_SUPPORT -DHAVE_ATOMIC_X86_GCC_ASSEMBLY -o atomic-builtin-test 2>/dev/null; then
+        echo "No changes to bdb source are needed ..."
+        rm atomic-builtin-test 2>/dev/null
+    else
+        echo "Updating atomic.h file ..."
+        sed -i 's/__atomic_compare_exchange/__atomic_compare_exchange_db/g' db-4.8.30.NC/dbinc/atomic.h
+    fi
     cd db-4.8.30.NC/build_unix/
-
     ../dist/configure -enable-cxx -disable-shared -with-pic -prefix=$EMC2_PREFIX
-
     make install
     cd $EMC2_ROOT
 }
@@ -695,51 +757,64 @@ Restrict access to the `einsteinium.conf` file
 chmod 600 ~/.einsteinium/einsteinium.conf
 ```
 
-### GinCoin (GIN)
+### GleecBTC (GLEEC)
 
-#### Step 1: Clone GIN source
+#### Step 1: Clone GleecBTC source
 
 ```bash
 cd ~
-git clone https://github.com/GIN-coin/gincoin-core
-cd gincoin-core
-git checkout master
+git clone https://github.com/KomodoPlatform/GleecBTC-FullNode-Win-Mac-Linux
+cd ~/GleecBTC-FullNode-Win-Mac-Linux
+git checkout b4ffcc9
 ```
 
-#### Step 2: Create a build script
+#### Step 2: Create a build Script
 
-Name the script as `build.sh` inside the `~/gincoin-core` dir for easy compiling and add the contents below to the script. The script will also create symlinks gor the binaries at `/usr/local/bin/` and for that, you will be asked to provide the `sudo` password.
+- Create a file named `build.sh` in the `~/GleecBTC-FullNode-Win-Mac-Linux` directory and copy the contents of the following code block into it
 
 ```bash
 #!/bin/bash
+# GleecBTC build script for Ubuntu & Debian 9 v.3 (c) Decker (and webworker)
 berkeleydb () {
-    GIN_ROOT=$(pwd)
-    GIN_PREFIX="${GIN_ROOT}/db4"
-    mkdir -p $GIN_PREFIX
+    GleecBTC_ROOT=$(pwd)
+    GleecBTC_PREFIX="${GleecBTC_ROOT}/db4"
+    mkdir -p $GleecBTC_PREFIX
     wget -N 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
     echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef db-4.8.30.NC.tar.gz' | sha256sum -c
     tar -xzvf db-4.8.30.NC.tar.gz
+    cat <<-EOL >atomic-builtin-test.cpp
+        #include <stdint.h>
+        #include "atomic.h"
+
+        int main() {
+        db_atomic_t *p; atomic_value_t oldval; atomic_value_t newval;
+        __atomic_compare_exchange(p, oldval, newval);
+        return 0;
+        }
+EOL
+    if g++ atomic-builtin-test.cpp -I./db-4.8.30.NC/dbinc -DHAVE_ATOMIC_SUPPORT -DHAVE_ATOMIC_X86_GCC_ASSEMBLY -o atomic-builtin-test 2>/dev/null; then
+        echo "No changes to bdb source are needed ..."
+        rm atomic-builtin-test 2>/dev/null
+    else
+        echo "Updating atomic.h file ..."
+        sed -i 's/__atomic_compare_exchange/__atomic_compare_exchange_db/g' db-4.8.30.NC/dbinc/atomic.h
+    fi
     cd db-4.8.30.NC/build_unix/
-
-    ../dist/configure -enable-cxx -disable-shared -with-pic -prefix=$GIN_PREFIX
-
+    ../dist/configure -enable-cxx -disable-shared -with-pic -prefix=$GleecBTC_PREFIX
     make install
-    cd $GIN_ROOT
+    cd $GleecBTC_ROOT
 }
-
-buildgin () {
+buildGleecBTC () {
     git pull
-    make clean
     ./autogen.sh
-    ./configure LDFLAGS="-L${GIN_PREFIX}/lib/" CPPFLAGS="-I${GIN_PREFIX}/include/" --with-gui=no --disable-tests --disable-bench --without-miniupnpc --enable-experimental-asm --enable-static --disable-shared --without-gui
+    ./configure LDFLAGS="-L${GleecBTC_PREFIX}/lib/" CPPFLAGS="-I${GleecBTC_PREFIX}/include/" --with-gui=no --disable-tests --disable-bench --without-miniupnpc --enable-experimental-asm --enable-static --disable-shared --with-incompatible-bdb
     make -j$(nproc)
 }
-
 berkeleydb
-buildgin
-
-sudo ln -sf /home/$USER/gincoin-core/src/gincoin-cli /usr/local/bin/gincoin-cli
-sudo ln -sf /home/$USER/gincoin-core/src/gincoind /usr/local/bin/gincoind
+buildGleecBTC
+echo "Done building GleecBTC!"
+sudo ln -sf /home/$USER/GleecBTC-FullNode-Win-Mac-Linux/src/gleecbtc-cli /usr/local/bin/gleecbtc-cli
+sudo ln -sf /home/$USER/GleecBTC-FullNode-Win-Mac-Linux/src/gleecbtcd /usr/local/bin/gleecbtcd
 ```
 
 #### Step 3: Make the script executable and run it
@@ -749,65 +824,190 @@ chmod +x build.sh
 ./build.sh
 ```
 
-#### Step 4: Create GIN data dir, `gincoin.conf` file and restrict access to it
+- Supply your `sudo` password when asked, so that the daemon and cli can be symlinked to your `/usr/local/bin` directory
+
+#### Step 4: Create GleecBTC data dir, gleecbtc.conf file and restrict access to it
 
 ```bash
 cd ~
-mkdir .gincoincore
-nano ~/.gincoincore/gincoin.conf
+mkdir .gleecbtc
+nano ~/.gleecbtc/gleecbtc.conf
 ```
 
-Insert the following contents inside the `gincoin.conf` file and save it. (change the `rpcuser` and `rpcpassword` values)
+Insert the following contents inside the gleecbtc.conf file and save it. (change the rpcuser and rpcpassword values)
 
 ```bash
-rpcuser=user
-rpcpassword=password
 server=1
 daemon=1
 txindex=1
-litemode=1
+rpcuser=user
+rpcpassword=password
 bind=127.0.0.1
 rpcbind=127.0.0.1
 rpcallowip=127.0.0.1
 ```
 
-Restrict access to the `gincoin.conf` file
+Restrict access to the gleecbtc.conf file
 
 ```bash
-chmod 600 ~/.gincoincore/gincoin.conf
+chmod 600 ~/.gleecbtc/gleecbtc.conf
+```
+
+:::tip Note
+
+GleecBTC's rpc calls are similar to BTC's after version `v0.18`. So familiar commands like `getinfo` don't work, and `validateaddress` doesn't output `ismine` info. To check if your address was imported, use `getaddressinfo` and check the `ismine` key in the response.
+
+:::
+
+### MarmaraChain (MCL)
+
+#### Step 1: Clone MCL source and compile
+
+```bash
+cd ~
+git clone https://github.com/marmarachain/Marmara-v.1.0 -b master
+cd Marmara-v.1.0
+git checkout 03dd780
+./zcutil/build.sh -j$(nproc)
 ```
 
 ### VerusCoin (VRSC)
 
-#### Clone VRSC source and compile
+#### Step 1: Clone VRSC source and compile
 
 ```bash
 cd ~
-git clone https://github.com/VerusCoin/VerusCoin
+git clone https://github.com/VerusCoin/VerusCoin -b master
 cd VerusCoin
-git checkout master
+git checkout ab82cc9
 ./zcutil/build.sh -j$(nproc)
 ```
 
 Symlink the compiled binary
 
-```
+```bash
 sudo ln -sf /home/$USER/VerusCoin/src/verusd /usr/local/bin/verusd
 ```
 
+### Powerblockcoin (PBC)
+
+#### Step 1: Clone powerblockcoin-core source
+
+```bash
+cd ~
+git clone https://github.com/pbcllc/powerblockcoin-core
+cd ~/powerblockcoin-core
+git checkout 51f456a
+```
+
+#### Build
+
+- Create a file named `build.sh` in the `~/powerblockcoin-core` directory and copy the contents of the following code block into it
+
+```bash
+#!/bin/bash
+# Powerblockcoin build script for Ubuntu & Debian 9 v.3 (c) Decker (and webworker)
+berkeleydb () {
+    Powerblockcoin_ROOT=$(pwd)
+    Powerblockcoin_PREFIX="${Powerblockcoin_ROOT}/db4"
+    mkdir -p $Powerblockcoin_PREFIX
+    wget -N 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
+    echo '12edc0df75bf9abd7f82f821795bcee50f42cb2e5f76a6a281b85732798364ef db-4.8.30.NC.tar.gz' | sha256sum -c
+    tar -xzvf db-4.8.30.NC.tar.gz
+    cat <<-EOL >atomic-builtin-test.cpp
+        #include <stdint.h>
+        #include "atomic.h"
+
+        int main() {
+        db_atomic_t *p; atomic_value_t oldval; atomic_value_t newval;
+        __atomic_compare_exchange(p, oldval, newval);
+        return 0;
+        }
+EOL
+    if g++ atomic-builtin-test.cpp -I./db-4.8.30.NC/dbinc -DHAVE_ATOMIC_SUPPORT -DHAVE_ATOMIC_X86_GCC_ASSEMBLY -o atomic-builtin-test 2>/dev/null; then
+        echo "No changes to bdb source are needed ..."
+        rm atomic-builtin-test 2>/dev/null
+    else
+        echo "Updating atomic.h file ..."
+        sed -i 's/__atomic_compare_exchange/__atomic_compare_exchange_db/g' db-4.8.30.NC/dbinc/atomic.h
+    fi
+    cd db-4.8.30.NC/build_unix/
+    ../dist/configure -enable-cxx -disable-shared -with-pic -prefix=$Powerblockcoin_PREFIX
+    make install
+    cd $Powerblockcoin_ROOT
+}
+buildPowerblockcoin () {
+    git pull
+    ./autogen.sh
+    ./configure LDFLAGS="-L${Powerblockcoin_PREFIX}/lib/" CPPFLAGS="-I${Powerblockcoin_PREFIX}/include/" --with-gui=no --disable-tests --disable-bench --without-miniupnpc --enable-experimental-asm --enable-static --disable-shared --with-incompatible-bdb
+    make -j$(nproc)
+}
+berkeleydb
+buildPowerblockcoin
+echo "Done building Powerblockcoin!"
+sudo ln -sf /home/$USER/powerblockcoin-core/src/powerblockcoin-cli /usr/local/bin/powerblockcoin-cli
+sudo ln -sf /home/$USER/powerblockcoin-core/src/powerblockcoind /usr/local/bin/powerblockcoind
+```
+
+#### Step 3: Make the script executable and run it
+
+```bash
+chmod +x build.sh
+./build.sh
+```
+
+- Supply your `sudo` password when asked, so that the daemon and cli can be symlinked to your `/usr/local/bin` directory
+
+#### Step 4: Create Powerblockcoin data dir, powerblockcoin.conf file and restrict access to it
+
+```bash
+cd ~
+mkdir .powerblockcoin
+nano ~/.powerblockcoin/powerblockcoin.conf
+```
+
+Insert the following contents inside the powerblockcoin.conf file and save it. (change the rpcuser and rpcpassword values)
+
+```bash
+server=1
+daemon=1
+txindex=1
+rpcuser=user
+rpcpassword=password
+bind=127.0.0.1
+rpcbind=127.0.0.1
+rpcallowip=127.0.0.1
+```
+
+Restrict access to the powerblockcoin.conf file
+
+```bash
+chmod 600 ~/.powerblockcoin/powerblockcoin.conf
+```
+
+::: tip Note
+
+Powerblockcoin's address and wif format are the same as KMD. You can import your 3p KMD node's wif into the Powerblockcoin daemon directly.
+
+Powerblockcoin's rpc calls are similar to BTC's after version `v0.16`. So instead of `getinfo`, use other rpc like `getblockchaininfo`, `getnetworkinfo`, `getwalletinfo`, `getmininginfo` for the appropriate fields.
+
+:::
+
 ### Start the daemons and sync all the chains
 
-For the first time sync, we will run all the coin daemons normally. Make sure you have successfully compiled all the daemons from the above section. We will create a `start` script later in this guide to start the chains with `-pubkey` option for notarisation.
+For the first time sync, we will run all the coin daemons normally. Make sure you have successfully compiled all the daemons from the above section. We will create a `start` script later in this guide to start the chains with `-pubkey` option for notarization.
 
 ### Start the coins
 
 ```bash
 komodod &
 chipsd &
-gamecreditsd &
 einsteiniumd &
-gincoind &
+powerblockcoind &
+aryacoind &
 verusd &
+~/Marmara-v.1.0/src/komodod -ac_name=MCL -ac_supply=2000000 -ac_cc=2 -addnode=37.148.210.158 -addnode=37.148.212.36 -addressindex=1 -spentindex=1 -ac_marmara=1 -ac_staked=75 -ac_reward=3000000000 &
+gleecbtcd &
 ```
 
 Now wait for all the chains to finish syncing. This might take about 8-10 hours depending on your machine and internet connection. You can check check sync progress by using `tail -f` on the `debug.log` file in the respective coin data directories.
@@ -819,14 +1019,18 @@ Commands to tail `debug.log`
 tail -f ~/.komodo/debug.log
 # CHIPS
 tail -f ~/.chips/debug.log
-# GAME
-tail -f ~/.gamecredits/debug.log
 # EMC2
 tail -f ~/.einsteinium/debug.log
-# GIN
-tail -f ~/.gincoincore/debug.log
+# Powerblockcoin
+tail -f ~/.powerblockcoin/debug.log
+# AYA
+tail -f ~/.aryacoin/debug.log
+# MCL
+tail -f ~/.komodo/MCL/debug.log
 # VRSC
 tail -f ~/.komodo/VRSC/debug.log
+# GLEEC
+tail -f ~/.komodo/gleecbtc/debug.log
 ```
 
 You can now wait for all the coins to finish syncing. Just double check the block you've downloaded with an explorer to verify.
@@ -837,13 +1041,15 @@ Feel free to import your addresses whilst your daemons are syncing.
 
 - Follow the example below to import your 3rd party pubkey **only** into your coin daemons.
 
-```
+```bash
 komodo-cli importprivkey UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
+powerblockcoin-cli importprivkey UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
 chips-cli importprivkey UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
-gamecredits-cli importprivkey Re6YxHzdQ61rmTuZFVbjmGu9Kqu8VeVJr4G1ihTPFsspAjGiErDL
 einsteinium-cli importprivkey T7trfubd9dBEWe3EnFYfj1r1pBueqqCaUUVKKEvLAfQvz3JFsNhs
-gincoin-cli importprivkey WNejFTXR11LFx2L8wvEKEqvjHkL1D3Aa4CCBdEYQyBzbBKjPLHJQ
+aryacoin-cli importprivkey T6oxgc9ZYJA1Uvsm31Gb8Mg31hHgLWue7RuqQMjEHUWZEi5TdskL
+komodo-cli -ac_name=MCL importprivkey UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
 komodo-cli -ac_name=VRSC importprivkey UtrRXqvRFUAtCrCTRAHPH6yroQKUrrTJRmxt2h5U4QTUN1jCxTAh
+gleecbtc-cli importprivkey AhXsCzbmiZUyMCZyPqjYMhLxBxcFBP6tQSLrCpTpfYkvjJEMthcW
 ```
 
 This may take some time and will display the coin name and address after each import. You can tail the coin specific `debug.log` files to check the progress.
@@ -856,12 +1062,12 @@ After all the addresses are imported, using the respective `<COIN>-cli`, validat
 komodo-cli validateaddress RVNKRr2uxPMxJeDwFnTKjdtiLtcs7UzCZn
 ```
 
-#### Copy the `pubkey.txt` file that we created from the `~/SuperNET/iguana` dir
+#### Copy the `pubkey.txt` file that we created from the `~/dPoW/iguana` dir
 
 You will need to create a `pubkey.txt` file inside `~/komodo/src/`. This file will be used to start all of your daemons with the `-pubkey=` parameter in your `start` script that will be made later in this guide.
 
 ```bash
-cp ~/SuperNET/iguana/pubkey.txt ~/komodo/src/pubkey.txt
+cp ~/dPoW/iguana/pubkey.txt ~/komodo/src/pubkey.txt
 ```
 
 ### Stop All the Coin Daemons Safely
@@ -870,13 +1076,15 @@ Once your daemons have completed syncing, you've imported and validated all your
 
 Never use `kill -9` to kill any Coin daemon if you don't like corrupt databases. Always shutdown wallet daemon and iguana gracefully with `pkill -15 iguana` or use the below RPC commands for wallets.
 
-```
+```bash
 komodo-cli stop
+powerblockcoin-cli stop
 chips-cli stop
-gamecredits-cli stop
 einsteinium-cli stop
-gincoin-cli stop
+aryacoin-cli stop
+komodo-cli -ac_name=MCL stop
 komodo-cli -ac_name=VRSC stop
+gleecbtc-cli stop
 ```
 
 ---
@@ -936,7 +1144,7 @@ ulimit -n
 
 ## Create a `start` Script
 
-We need a `start` script in the home dir to start Komodo, assetchains and all 3rd party coin daemons with the `-pubkey` option. `-pubkey` is not required for BTC daemon. All other coins need it. 
+We need a `start` script in the home dir to start Komodo, Smart Chains and all 3rd party coin daemons with the `-pubkey` option. `-pubkey` is not required for BTC daemon. All other coins need it.
 
 Here is an example of a Main Server start script that will start Notary easy mining on Komodo as well:
 
@@ -944,10 +1152,9 @@ Here is an example of a Main Server start script that will start Notary easy min
 #!/bin/bash
 source ~/komodo/src/pubkey.txt
 bitcoind &
-~/hush3/src/hushd -pubkey=$pubkey &
 sleep 60
 cd komodo/src
-./komodod -gen -genproclimit=1 -notary -pubkey=$pubkey &
+./komodod -gen -genproclimit=1 -notary -pubkey=$pubkey -minrelaytxfee=0.000035 -opretmintxfee=0.004 &
 sleep 600
 ./assetchains
 ```
@@ -958,13 +1165,15 @@ Here is an example of a 3rd Party Server start script :
 #!/bin/bash
 source ~/komodo/src/pubkey.txt
 chipsd -pubkey=$pubkey &
-gamecreditsd -pubkey=$pubkey &
 einsteiniumd -pubkey=$pubkey &
-gincoind -pubkey=$pubkey &
+powerblockcoind -pubkey=$pubkey &
+aryacoind -pubkey=$pubkey &
 ~/VerusCoin/src/verusd -pubkey=$pubkey &
+~/Marmara-v.1.0/src/komodod -ac_name=MCL -pubkey=$pubkey -ac_supply=2000000 -ac_cc=2 -addnode=37.148.210.158 -addnode=37.148.212.36 -addressindex=1 -spentindex=1 -ac_marmara=1 -ac_staked=75 -ac_reward=3000000000 &
 sleep 60
 cd komodo/src
-./komodod -pubkey=$pubkey &
+./komodod -notary -pubkey=$pubkey &
+gleecbtcd -pubkey=$pubkey &
 ```
 
 Make the file executable:
@@ -984,44 +1193,30 @@ cd ~
 
 **Make sure all daemons started properly before starting iguana in the next step.**
 
-## Start `iguana`
+## Start `iguana` and dPoW process
 
 Once all required daemons are running, we have funds on all coins(DM @kolo with your addresses if you need coins), we can go ahead and start `iguana`.
 
-### Main Server:
+### Main Server
+
 ```bash
-cd ~/SuperNET/iguana
-./m_notary_run
+cd ~/dPoW/iguana
+./m_notary_KMD
 ```
 
-You can use the `m_notary` script if you wish, but this will issue a `git pull` command to update the repo, remove old iguana, compile fresh and start all the process. This can take about 10 minutes maximum to finish. You will see `INIT with 64 notaries` once the process finishes.
+You can use the `m_notary` script if you wish, but this will issue a `git pull` command to update the repo, remove old iguana, compile fresh and start the whole process. This can take about 10 minutes maximum to finish. You will see `INIT with 64 notaries` once the process finishes.
 
-### Start dPoW process
-
-After you see `INIT with 64 notaries`, you can safely start dPoW process. Just issue the following command from inside `iguana` dir to start with it.
+### 3rd Party Server
 
 ```bash
-./dpowassets
-```
-
-### 3rd Party Server:
-```bash
-cd ~/SuperNET/iguana
-./m_notary_build
+cd ~/dPoW/iguana
 ./m_notary_3rdparty
 ```
 
-### Start dPoW process
+## Firewall and Ports
 
-After you see `INIT with 64 notaries`, you can safely start dPoW process. Just issue the following command from inside `iguana` dir to start with it.
-
-```bash
-./dpowassets_3rdparty
-```
-
-If you're using the `beta_season3` branch of Iguana, it should split your utxos automatically. If you use the `blackjok3r` branch and want to test or split manually, you can follow [this guide](./split-utxo-for-notarization.html).
+Enable `ufw` and close all routes except `ssh`. Then allow p2p ports of all the coins in their respective servers. Allow iguana's p2p ports: `17773` in main server and `17774` in the 3p server.
 
 ## NN Scripts
 
-There are many open sourced scripts for managing your Komodo Notary Node servers. If you're having trouble with something, you can have a look at [these tools](https://github.com/KomodoPlatform/komodotools), or ask the other NN's, who I'm sure will show you the scripts they use to overcome issues. With that being said, if you find a way to make a job easier or find a way to better the ecosystem, please let the rest of the NN team know, we would love to hear it.
-
+There are many open sourced scripts for managing your Komodo Notary Node servers. If you're having trouble with something, you can have a look at [these tools](https://github.com/KomodoPlatform/komodotools), or ask the other NN's, who will show you the scripts they use to overcome issues. With that being said, if you find a way to make a job easier or find a way to better the ecosystem, please let the rest of the NN OPs know, we would love to hear it.

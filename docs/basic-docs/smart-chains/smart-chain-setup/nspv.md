@@ -4,7 +4,7 @@
 
 nSPV enhances the normal "Simple Payment Verification" (SPV) technology available for a Smart Chain. To learn more about regular SPV technology, [read this entry on the Bitcoin wiki.](https://en.bitcoinwiki.org/wiki/Simplified_Payment_Verification)
 
-nSPV leverages the dPoW security mechanism of the Komodo Platform to enable secure and scalable super-lite "SPV" clients. An nSPV client network utilizes a smaller amount of computation and storage resources compared to a normal SPV network. For all Smart Chains that enable nSPV, full nodes on the network can serve the necessary data to nSPV nodes for the latter to have full wallet functionality.
+nSPV leverages the dPoW security mechanism of the Komodo Platform to enable secure and scalable super-lite "SPV" clients. An nSPV client network utilizes a smaller amount of computation and storage resources compared to a normal SPV network. For all Smart Chains, <b>all the full nodes on the Smart Chain's network</b> can serve the necessary data to nSPV clients for the latter to have full wallet functionality.
 
 All Komodo-compatible Smart Chains, including the KMD main chain, can utilize this technology.
 
@@ -12,11 +12,13 @@ More details are available in the blog posts [here](https://medium.com/@jameslee
 
 ## Installation
 
+Follow the instructions below to set up an nSPV client.
+
 ```bash
 sudo apt-get update
 sudo apt-get upgrade -y
 sudo apt-get install build-essential pkg-config libc6-dev m4 libsodium-dev curl libevent-dev git cmake nano wget ntp ntpdate automake unzip autoconf libtool -y
-git clone https://github.com/jl777/libnspv
+git clone https://github.com/KomodoPlatform/libnspv
 cd libnspv
 ./autogen.sh
 ./configure
@@ -63,56 +65,52 @@ Copy the following code to the file named `coins` (located at the root level of 
 
 #### Property Descriptions
 
-| Name    | Type     | Description                                                                                                                                                                                                                        |
-| ------- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| coin    | (string) | the ticker of the coin                                                                                                                                                                                                             |
-| asset   | (string) | the `-ac_name` parameter used to start the Smart Chain                                                                                                                                                                             |
-| fname   | (string) | the full name of the Smart Chain                                                                                                                                                                                                   |
-| rpcport | (number) | the RPC port the Smart Chain's daemon uses to receive RPC commands                                                                                                                                                                 |
-| mm2     | (number) | set this value to `1` if this coin has been tested and proves capable of functioning on MarketMaker 2.0 software                                                                                                                   |
-| p2p     | (number) | the p2p port the Smart Chain's daemon uses to communicate with other nodes                                                                                                                                                         |
-| magic   | (string) | the netmagic number for this Smart Chain. The decimal value of `magic` can be obtained by executing the `getinfo` RPC on a full node on the Smart Chain network. Convert the decimal value to hex and serialize it into 4 hexbytes |
-| nSPV    | (string) | the ip addresses of the full nodes on the Smart Chain network                                                                                                                                                                      |
-
-::: tip
-
-If you find that the direction of `magic` is wrong, try reversing the order of the numbers.
-
-:::
-
-::: tip
-
-The `magic` number can also be seen in the terminal as a `stdout` printout when the daemon is launched.
-
-###### Example
-
-```
->>>>>>>>>> COIN: p2p.40264 rpc.40265 magic.fe1c3450 4263261264 350689 coins
-```
-
-:::
+| Name    | Type     | Description                                                                                                                                                                                                                         |
+| ------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| coin    | (string) | the ticker of the coin                                                                                                                                                                                                              |
+| asset   | (string) | the `-ac_name` parameter used to start the Smart Chain                                                                                                                                                                              |
+| fname   | (string) | the full name of the Smart Chain                                                                                                                                                                                                    |
+| rpcport | (number) | the RPC port the Smart Chain's daemon uses to receive RPC commands                                                                                                                                                                  |
+| mm2     | (number) | set this value to `1` if this coin has been tested and proves capable of functioning on MarketMaker 2.0 software                                                                                                                    |
+| p2p     | (number) | the p2p port the Smart Chain's daemon uses to communicate with other nodes                                                                                                                                                          |
+| magic   | (string) | the netmagic number for this Smart Chain. The decimal value of `magic` can be obtained by executing the `getinfo` RPC on a full node on the Smart Chain network. Convert the decimal value to hex and serialize it into 4 hexbytes; |
+| nSPV    | (string) | the ip addresses of the full nodes on the Smart Chain network                                                                                                                                                                       |
 
 ::: tip
 
 To start the nSPV client for a specific Smart Chain after its data has been added to the coins file, execute the following.
 
-```
+```bash
 ./nspv COIN
 ```
 
 :::
 
-## Interacting with the nSPV Client
+#### Tips and Suggestions for Working with the Magic Number
 
-::: tip
+The magic number is a unique number that the daemon uses for identification purposes.
+
+If the direction of the `magic` number appears to be incorrect, try reversing the order of the numbers.
+
+The `magic` number can also be found from the terminal as a `stdout` printout when launching the daemon. Look for the line that starts with `>>>>>>>>>>` , extract the hex portion of the string (`magic.xxxxxxxx`), and reverse its byte order.
+
+###### Example
+
+```bash
+>>>>>>>>>> COIN: p2p.40264 rpc.40265 magic.fe1c3450 4263261264 350689 coins
+```
+
+The hex extracted is `fe1c3450`.
+
+Therefore the magic value for the coins file is `50341cfe`
+
+## Interacting with the nSPV Client
 
 The port in each of these examples is the port on which the nSPV client listens for RPC commands.
 
 For KMD, the port is `7771`. For any other Smart Chain, the port is the `rpcport` specified in the `coins` file.
 
 This behaviour can be bypassed by setting the [-p](../../../basic-docs/smart-chains/smart-chain-setup/nspv.html#p) parameter.
-
-:::
 
 #### curl Commands Using Named Parameters
 
@@ -123,13 +121,6 @@ curl --url "http://127.0.0.1:$port" --data "{\"userpass\":\"$userpass\",\"method
 ```
 
 #### curl Command Using the json2.0 Interface
-
-<!--
-
-Sidd: There was a mention below of a "doc", but I am assuming that the doc in question is this document, and that the following example is a good template to use?
-
-gcharang: yes, the doc mentioned is the current document and the parameters' order should be as listed for each method; the example is good
--->
 
 When using this format for any RPC that requires parameters (also called "arguments"), provide the parameters in the order they are given in this documentation.
 
@@ -143,13 +134,17 @@ curl --data-binary '{"jsonrpc": "2.0", "id":"curltest", "method": "spentinfo", "
 
 #### Accessing localhost in the Browser
 
-To access an nSPV client using a browser, create a url that uses `http://127.0.0.1:<insert_port>/api/` as the base url, and add the `rpc_name/` and any relevant additional `parameters/` as additional url directions. See the example below.
+To access an nSPV client's API using a browser, create a url that uses `http://127.0.0.1:<insert_port>/api/` as the base url, and add the `rpc_name/` and any relevant additional `parameters/` as additional url directions. See the example below.
 
 ##### Example
 
 ```
 http://127.0.0.1:<port>/api/method/spentinfo/txid/e07709088fa2690fdc71b43b5d7760689e42ca90f7dfb74b18bf47a1ad94c855/vout/1
 ```
+
+#### Static HTML wallet in a browser
+
+Simply visit the url `http://127.0.0.1:<insert_port>/` to access the Static HTML wallet served by the nSPV binary.
 
 ## -p
 
@@ -288,29 +283,30 @@ curl --data-binary '{"jsonrpc": "2.0", "id":"curltest", "method": "getinfo", "pa
 
 ## getnewaddress
 
-**getnewaddress**
+**getnewaddress [lang]**
 
 Use this method to create a new address.
 
 #### Arguments
 
-| Name   | Type | Description |
-| ------ | ---- | ----------- |
-| (none) |      |             |
+| Name | Type              | Description                                                                                                                                                                                      |
+| ---- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| lang | (string,optional) | the language in which the seed words are to be generated; can be one of: "english", "french", "italian", "japanese", "korean", "russian", "spanish", "chinese_simplified", "chinese_traditional" |
 
 #### Response
 
-| Name       | Type     | Description                                            |
-| ---------- | -------- | ------------------------------------------------------ |
-| wif        | (string) | wifkey of the generated address                        |
-| address    | (string) | the generated address                                  |
-| pubkey     | (string) | pubkey of the generated address                        |
-| wifprefix  | (number) | prefix of the generated wifkey; depends on the network |
-| compressed | (number) | whether the wifkey generated is compressed             |
+| Name       | Type     | Description                                                                                                                                       |
+| ---------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| seed       | (string) | seed phrase of the generated address; currently generates a phrase with `23` seed words compatible with the other wallets in the Komodo Ecosystem |
+| wif        | (string) | wifkey of the generated address                                                                                                                   |
+| address    | (string) | the generated address                                                                                                                             |
+| pubkey     | (string) | pubkey of the generated address                                                                                                                   |
+| wifprefix  | (number) | prefix of the generated wifkey; depends on the network                                                                                            |
+| compressed | (number) | whether the wifkey generated is compressed                                                                                                        |
 
 #### :pushpin: Examples
 
-##### Command
+##### Command (Without arguments)
 
 ```bash
 curl --data-binary '{"jsonrpc": "2.0", "id":"curltest", "method": "getnewaddress", "params": [] }' -H 'content-type: text/plain;' http://127.0.0.1:$port/
@@ -320,9 +316,31 @@ curl --data-binary '{"jsonrpc": "2.0", "id":"curltest", "method": "getnewaddress
 
 ```json
 {
-  "wif": "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "address": "Rxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-  "pubkey": "03xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "seed": "shiver heart abuse xxx xxx xxx xxx xxx xxx xxx xxx xxx",
+  "wif": "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "address": "RL5kuVuiJQQcDdaooYerKUxvcXwq8jb71d",
+  "pubkey": "03b983f01e528356dfc32b49fc2a830013a28fc95b569b7559b09729912d29f5c5",
+  "wifprefix": 188,
+  "compressed": 1
+}
+```
+
+</collapse-text>
+
+##### Command (To get the seed words in italian)
+
+```bash
+curl --data-binary '{"jsonrpc": "2.0", "id":"curltest", "method": "getnewaddress", "params": ["italian"] }' -H 'content-type: text/plain;' http://127.0.0.1:$port/
+```
+
+<collapse-text hidden title="Response">
+
+```json
+{
+  "seed": "agitare busta rinnovo xxx xxxx xxx xxx xxxx xxx xxx xxx xxxx",
+  "wif": "Uxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  "address": "RFKVh3xE3ygK9smStgurByLZ2b3Nksm9bQ",
+  "pubkey": "033b8705127f19a6e5de646f3c46590b9196acfc01d68740f0872547677da3d8bf",
   "wifprefix": 188,
   "compressed": 1
 }
@@ -1083,7 +1101,7 @@ curl --data-binary '{"jsonrpc": "2.0", "id":"curltest", "method": "logout", "par
 
 ## mempool
 
-**mempool address isCC memfunc [txid vout evalcode ccfunc]]]**
+**mempool address isCC memfunc [txid vout evalcode ccfunc]**
 
 This method returns the current transactions in the mempool. The various parameters can be used to filter the transactions.
 
